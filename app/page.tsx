@@ -9,9 +9,9 @@ const CanvasArea = dynamic(() => import('@/components/CanvasArea'), { ssr: false
 
 export default function Home() {
   return (
-    <main className="flex h-screen w-screen overflow-hidden bg-gray-50 text-gray-900 font-sans">
+    <main className="flex flex-col md:flex-row h-screen w-screen overflow-hidden bg-gray-50 text-gray-900 font-sans">
       <Toolbar />
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0">
         <CanvasArea />
       </div>
       <PropertiesPanel />

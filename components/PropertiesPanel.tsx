@@ -70,7 +70,7 @@ const PropertiesPanel = () => {
   };
 
   return (
-    <div className="w-72 bg-white border-l border-gray-200 p-4 overflow-y-auto shadow-sm z-10 flex flex-col gap-6">
+    <div className="w-full md:w-72 h-1/3 md:h-full max-h-[40vh] md:max-h-none bg-white border-t md:border-t-0 md:border-l border-gray-200 p-4 overflow-y-auto shadow-sm z-10 flex flex-col gap-6 shrink-0">
       
       {/* Colors */}
       <div>

@@ -40,7 +40,7 @@ const CanvasArea = () => {
     return Math.round(val / size) * size;
   };
 
-  const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
+  const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (tool === 'select') {
       const clickedOnEmpty = e.target === e.target.getStage();
       if (clickedOnEmpty) {
@@ -86,7 +86,7 @@ const CanvasArea = () => {
     }
   };
 
-  const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+  const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (!isDrawing || !newElement) return;
 
     const stage = e.target.getStage();
@@ -165,11 +165,11 @@ const CanvasArea = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedIds, editingTextId, deleteElements]);
 
-  const handleElementClick = (e: Konva.KonvaEventObject<MouseEvent>, id: string) => {
+  const handleElementClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>, id: string) => {
     if (tool !== 'select') return;
     e.cancelBubble = true;
     
-    const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+    const metaPressed = e.evt && (e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey);
     const isSelected = selectedIds.includes(id);
 
     if (!metaPressed && !isSelected) {
@@ -242,7 +242,7 @@ const CanvasArea = () => {
     setHoverPos(null);
   };
 
-  const handleTextDblClick = (e: Konva.KonvaEventObject<MouseEvent>, el: CanvasElement) => {
+  const handleTextDblClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>, el: CanvasElement) => {
     if (tool !== 'select') return;
     setEditingTextId(el.id);
     setTextValue(el.text || '');
@@ -255,6 +255,7 @@ const CanvasArea = () => {
       y: el.y,
       draggable: tool === 'select',
       onClick: (e: any) => handleElementClick(e, el.id),
+      onTap: (e: any) => handleElementClick(e, el.id),
       onDragEnd: (e: any) => handleDragEnd(e, el.id),
       onTransformEnd: (e: any) => handleTransformEnd(e, el.id),
       onMouseEnter: (e: any) => handleMouseEnter(e, el.id),
@@ -285,7 +286,7 @@ const CanvasArea = () => {
       case 'dot':
         const isEditingDot = editingTextId === el.id;
         return (
-          <Group key={el.id} {...commonProps} fill={undefined} stroke={undefined} onDblClick={(e) => handleTextDblClick(e, el)}>
+          <Group key={el.id} {...commonProps} fill={undefined} stroke={undefined} onDblClick={(e) => handleTextDblClick(e, el)} onDblTap={(e) => handleTextDblClick(e, el)}>
             <Circle
               radius={5}
               fill={el.style.fill}
@@ -368,7 +369,7 @@ const CanvasArea = () => {
         };
 
         return (
-          <Group key={el.id} {...commonProps} fill={undefined} stroke={undefined} onDblClick={(e) => handleTextDblClick(e, el)}>
+          <Group key={el.id} {...commonProps} fill={undefined} stroke={undefined} onDblClick={(e) => handleTextDblClick(e, el)} onDblTap={(e) => handleTextDblClick(e, el)}>
             <Rect
               width={el.width}
               height={el.height}
@@ -452,6 +453,9 @@ const CanvasArea = () => {
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchMove={handleMouseMove}
+          onTouchEnd={handleMouseUp}
           ref={stageRef}
         >
           <Layer>
