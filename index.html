@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MindMap Creator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="top-bar">
+        <h1>MindMap Creator</h1>
+        <div class="header-actions">
+            <button id="btn-save" title="Save to Local Storage"><i class="fas fa-save"></i> Save</button>
+            <button id="btn-load" title="Load from Local Storage"><i class="fas fa-folder-open"></i> Load</button>
+            <button id="btn-canvas-settings"><i class="fas fa-cog"></i> Canvas Setup</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        
+        <aside class="toolbar left-toolbar">
+            <div class="tool-section">
+                <h3>Tools</h3>
+                <button class="tool-btn active" id="tool-select" title="Select / Move"><i class="fas fa-mouse-pointer"></i></button>
+                <button class="tool-btn" id="tool-pencil" title="Free Draw"><i class="fas fa-pencil-alt"></i></button>
+                <button class="tool-btn" id="tool-text" title="Add Text"><i class="fas fa-font"></i></button>
+                <button class="tool-btn" id="tool-delete" title="Delete Selected Object"><i class="fas fa-trash"></i></button>
+            </div>
+
+            <div class="tool-section">
+                <h3>Shapes</h3>
+                <button class="tool-btn" id="shape-cube" title="Cube / Rectangle"><i class="fas fa-square"></i></button>
+                <button class="tool-btn" id="shape-circle" title="Circle"><i class="fas fa-circle"></i></button>
+                <button class="tool-btn" id="shape-dot" title="List Dot"><i class="fas fa-circle" style="font-size: 8px;"></i></button>
+                <button class="tool-btn" id="shape-line" title="Line / Connector"><i class="fas fa-minus"></i></button>
+                
+                <div class="polygon-wrapper">
+                    <button class="tool-btn" id="shape-polygon" title="Polygon"><i class="fas fa-draw-polygon"></i></button>
+                    <input type="number" id="polygon-sides" min="3" max="12" value="5" title="Number of polygon sides">
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <h3>Options</h3>
+                <label class="toggle-label" title="Snap to grid/objects">
+                    <input type="checkbox" id="magnetic-snap"> Magnetic Snap
+                </label>
+            </div>
+        </aside>
+
+        <main class="canvas-wrapper" id="canvas-wrapper">
+            <canvas id="mindmap-canvas"></canvas>
+            
+            <div id="comment-tooltip" class="tooltip hidden"></div>
+        </main>
+
+        <aside class="toolbar right-toolbar">
+            <div class="tool-section">
+                <h3>Color Style</h3>
+                <div class="property-row">
+                    <label for="color-fill">Fill:</label>
+                    <input type="color" id="color-fill" value="#ffffff">
+                </div>
+                <div class="property-row">
+                    <label for="color-stroke">Stroke:</label>
+                    <input type="color" id="color-stroke" value="#000000">
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <h3>Text Styling</h3>
+                <div class="property-row">
+                    <input type="number" id="text-size" value="16" min="8" max="72" title="Font Size">
+                    <select id="text-align" title="Text Alignment">
+                        <option value="left">Left</option>
+                        <option value="center" selected>Center</option>
+                        <option value="right">Right</option>
+                    </select>
+                </div>
+                <div class="text-format-grid">
+                    <button class="format-btn" id="fmt-bold" title="Bold"><i class="fas fa-bold"></i></button>
+                    <button class="format-btn" id="fmt-italic" title="Italic"><i class="fas fa-italic"></i></button>
+                    <button class="format-btn" id="fmt-underline" title="Underline"><i class="fas fa-underline"></i></button>
+                    <button class="format-btn" id="fmt-strike" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
+                    <button class="format-btn" id="fmt-mark" title="Highlight"><i class="fas fa-highlighter"></i></button>
+                    <button class="format-btn" id="fmt-sub" title="Subscript"><i class="fas fa-subscript"></i></button>
+                    <button class="format-btn" id="fmt-super" title="Superscript"><i class="fas fa-superscript"></i></button>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <h3>Edit Object</h3>
+                <button class="action-btn" id="btn-add-comment"><i class="fas fa-comment"></i> Add Comment</button>
+            </div>
+        </aside>
+
+    </div>
+
+    <div id="modal-canvas-settings" class="modal hidden">
+        <div class="modal-content">
+            <h2>Canvas Settings</h2>
+            <div class="property-row">
+                <label for="canvas-width">Width (px):</label>
+                <input type="number" id="canvas-width" value="1920">
+            </div>
+            <div class="property-row">
+                <label for="canvas-height">Height (px):</label>
+                <input type="number" id="canvas-height" value="1080">
+            </div>
+            <div class="property-row">
+                <label for="canvas-bg">Background:</label>
+                <input type="color" id="canvas-bg" value="#f4f4f9">
+            </div>
+            <div class="property-row">
+                <label class="toggle-label">
+                    <input type="checkbox" id="canvas-grid" checked> Show Grid
+                </label>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn primary" id="btn-apply-settings">Apply Settings</button>
+                <button class="action-btn" id="btn-close-settings">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
