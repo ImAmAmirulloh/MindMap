@@ -43,6 +43,36 @@ body {
     color: var(--primary-color);
 }
 
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.zoom-controls button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 14px;
+    padding: 4px;
+}
+
+.zoom-controls button:hover {
+    color: var(--primary-color);
+}
+
+.zoom-controls span {
+    font-size: 14px;
+    min-width: 45px;
+    text-align: center;
+    font-weight: 500;
+}
+
 .header-actions button {
     margin-left: 0.5rem;
     padding: 0.5rem 1rem;
@@ -199,27 +229,26 @@ body {
     overflow: auto; /* Allows panning if canvas is larger than screen */
     position: relative;
     background-color: #e5e5e5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    text-align: center;
+    padding: 20px;
 }
 
 canvas {
     background-color: white;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    /* Background grid will be drawn via JS or CSS pattern */
+    margin: 0 auto;
 }
 
 /* --- Tooltip (For 3-second hover comments) --- */
 .tooltip {
-    position: absolute;
+    position: fixed;
     background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 4px;
     font-size: 0.85rem;
     pointer-events: none; /* So it doesn't block mouse events on canvas */
-    z-index: 100;
+    z-index: 10000;
     transition: opacity 0.3s ease;
     max-width: 250px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);

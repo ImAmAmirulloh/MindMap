@@ -21,7 +21,8 @@ let state = {
         height: 1080,
         bg: '#ffffff',
         grid: true,
-        snap: false
+        snap: false,
+        zoom: 1
     }
 };
 
@@ -34,9 +35,27 @@ function init() {
 }
 
 function resizeCanvas() {
-    canvas.width = state.settings.width;
-    canvas.height = state.settings.height;
+    applyZoom();
+}
+
+function applyZoom() {
+    if (!state.settings.zoom) state.settings.zoom = 1;
+    
+    // Set internal resolution for sharpness
+    canvas.width = state.settings.width * state.settings.zoom;
+    canvas.height = state.settings.height * state.settings.zoom;
+    
+    // Set CSS size
+    canvas.style.width = `${state.settings.width * state.settings.zoom}px`;
+    canvas.style.height = `${state.settings.height * state.settings.zoom}px`;
+    
     canvas.style.backgroundColor = state.settings.bg;
+    
+    // Scale context so drawing commands use unscaled coordinates
+    ctx.scale(state.settings.zoom, state.settings.zoom);
+    
+    document.getElementById('zoom-level').innerText = `${Math.round(state.settings.zoom * 100)}%`;
+    
     render();
 }
 
@@ -119,12 +138,47 @@ function setupEventListeners() {
     document.getElementById('btn-save').onclick = saveToLocalStorage;
     document.getElementById('btn-load').onclick = () => {
         loadFromLocalStorage();
+        applyZoom();
         render();
     };
+    
+    document.getElementById('btn-zoom-in').addEventListener('click', () => {
+        state.settings.zoom = Math.min(state.settings.zoom + 0.1, 3);
+        applyZoom();
+    });
+    
+    document.getElementById('btn-zoom-out').addEventListener('click', () => {
+        state.settings.zoom = Math.max(state.settings.zoom - 0.1, 0.2);
+        applyZoom();
+    });
     
     document.getElementById('magnetic-snap').addEventListener('change', (e) => {
         state.settings.snap = e.target.checked;
     });
+    
+    // Mouse wheel zoom
+    wrapper.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            
+            // Get mouse position relative to canvas (before zoom)
+            const canvasRect = canvas.getBoundingClientRect();
+            const canvasMouseX = e.clientX - canvasRect.left;
+            const canvasMouseY = e.clientY - canvasRect.top;
+            
+            const oldZoom = state.settings.zoom;
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            state.settings.zoom = Math.max(0.2, Math.min(3, state.settings.zoom + delta));
+            
+            const zoomRatio = state.settings.zoom / oldZoom;
+            
+            applyZoom();
+            
+            // Adjust scroll to keep mouse over the same canvas point
+            wrapper.scrollLeft += (canvasMouseX * zoomRatio) - canvasMouseX;
+            wrapper.scrollTop += (canvasMouseY * zoomRatio) - canvasMouseY;
+        }
+    }, { passive: false });
     
     // Formatting buttons
     const formatBtns = ['bold', 'italic', 'underline', 'strike', 'mark', 'sub', 'super'];
@@ -305,7 +359,7 @@ function startAction(e) {
 
 function moveAction(e) {
     const { x, y } = getMousePos(e);
-    handleHoverComment(x, y);
+    handleHoverComment(x, y, e.clientX, e.clientY);
 
     if (!state.isDrawing) return;
     
@@ -382,7 +436,7 @@ function handleDoubleClick(e) {
 }
 
 // --- Hover Logic (3 Seconds) ---
-function handleHoverComment(x, y) {
+function handleHoverComment(x, y, clientX, clientY) {
     clearTimeout(state.hoverTimer);
     const tooltip = document.getElementById('comment-tooltip');
     tooltip.classList.add('hidden');
@@ -392,8 +446,8 @@ function handleHoverComment(x, y) {
     if (hoveredObj && hoveredObj.comment) {
         state.hoverTimer = setTimeout(() => {
             tooltip.innerText = hoveredObj.comment;
-            tooltip.style.left = `${x + 15}px`;
-            tooltip.style.top = `${y + 15}px`;
+            tooltip.style.left = `${clientX + 15}px`;
+            tooltip.style.top = `${clientY + 15}px`;
             tooltip.classList.remove('hidden');
         }, 1000); // Changed to 1 second for better UX
     }
@@ -401,7 +455,7 @@ function handleHoverComment(x, y) {
 
 // --- Drawing Engine ---
 function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, state.settings.width, state.settings.height);
     
     // Draw Grid if enabled
     if (state.settings.grid) drawGrid();
@@ -545,11 +599,11 @@ function drawFormattedText(obj, x, y) {
 function drawGrid() {
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 0.5;
-    for (let i = 0; i < canvas.width; i += 40) {
-        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+    for (let i = 0; i < state.settings.width; i += 40) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, state.settings.height); ctx.stroke();
     }
-    for (let i = 0; i < canvas.height; i += 40) {
-        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+    for (let i = 0; i < state.settings.height; i += 40) {
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(state.settings.width, i); ctx.stroke();
     }
 }
 
@@ -557,8 +611,8 @@ function drawGrid() {
 function getMousePos(e) {
     const rect = canvas.getBoundingClientRect();
     return {
-        x: (e.clientX - rect.left) * (canvas.width / rect.width),
-        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+        x: (e.clientX - rect.left) / state.settings.zoom,
+        y: (e.clientY - rect.top) / state.settings.zoom
     };
 }
 
